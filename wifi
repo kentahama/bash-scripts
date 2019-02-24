@@ -1,0 +1,19 @@
+#!/bin/bash
+
+DIR=/etc/wpa_supplicant
+
+([[ $1 == -h ]] || [[ $1 == --help ]]) && echo "Usage: $0 [--kill|--help] conf_file" 1>&2 && exit -1
+([[ $1 == -k ]] || [[ $1 == --kill ]]) && sudo pkill wpa_supplicant && sudo dhcpcd -x && exit 0
+([[ $# -eq 0 ]] || [[ $1 == --list ]]) && echo "Following config files exist:" && ls $DIR | grep .conf | sed 's/.conf//' | column -x && exit 0
+matches=()
+for f in $DIR/*.conf; do
+	[[ `basename $f` == $1* ]] && matches+=(`basename $f`)
+done
+[[ ${#matches[@]} -le 0 ]] && echo "$0: No such file: $1*.conf" 1>&2 && exit -1
+[[ ${#matches[@]} -ge 2 ]] && echo -e "$0: Config files are not unique: \n${matches[@]}" 1>&2 && exit -1
+
+CONF=${matches[0]}
+echo "Connecting to $CONF..."
+sudo wpa_supplicant -i wlp10s0 -c $DIR/$CONF -B
+sudo dhcpcd -w
+echo "Connected to $CONF."

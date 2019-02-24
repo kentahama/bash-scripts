@@ -1,0 +1,32 @@
+#!/bin/bash
+
+URLBASE="https://ejje.weblio.jp/content/"
+
+usage() {
+    echo "Usage: $0 [-a | --all | -f | --full] word" 1>&2 && exit -1
+}
+
+[[ $# -eq 0 ]] && usage
+
+for arg in $@; do
+    case $arg in
+        "-f" | "--full" | "-a" | "--all")
+            FULL=true
+            ;;
+        "-h" | "--help")
+            usage
+            ;;
+        *)
+            word=$arg
+            ;;
+    esac
+done
+
+all="$(curl -s $URLBASE$word | hxnormalize -x)"
+summary="$(echo $all | hxselect div.summaryM)"
+
+if [ -n "$FULL" ] || [ -z "$summary" ]; then
+    echo "$all" | hxselect div.kiji | w3m -T text/html -dump | less -F
+else
+    (printf "$word\n\n"; echo "$summary" | w3m -T text/html -dump) | less -F
+fi
