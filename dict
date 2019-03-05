@@ -17,7 +17,11 @@ for arg in $@; do
             usage
             ;;
         *)
-            word=$arg
+            if [ -z $word ]; then
+                word=$arg
+            else
+                word+="-$arg"
+            fi
             ;;
     esac
 done
