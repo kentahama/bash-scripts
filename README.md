@@ -1,7 +1,7 @@
 ### dict
 lightweight CLI weblio dictionary
 
-dependencies: w3m xml-html-utils
+dependencies: w3m html-xml-utils
 
 ### wifi
 wrapper of wpa_supplicant and dhcpcd
